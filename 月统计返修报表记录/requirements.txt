@@ -1,0 +1,3 @@
+pandas>=1.3.0  # 数据处理与Excel读写
+pymysql>=1.0.2  # MySQL数据库连接
+openpyxl>=3.0.9  # pandas处理xlsx格式Excel的依赖

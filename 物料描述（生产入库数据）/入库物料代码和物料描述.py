@@ -26,13 +26,14 @@ db_config = {
     "database": "三江",        
     "port": 3306               
 }
-target_table = "material_info" # 目标表名
+target_table = "material_info(month)" # 目标表名
 
 
 def main():
     """
     主函数：执行物料信息导入流程
     """
+    print(f"starting import from {excel_path} → sheet: {sheet_name}")
     # 1. 检查Excel文件存在性
     if not check_file_exists(excel_path):
         return
@@ -93,7 +94,8 @@ def main():
         create_table_sql = f"""
         CREATE TABLE IF NOT EXISTS `{target_table}` (
             `material_code` VARCHAR(50) PRIMARY KEY,
-            `material_desc` VARCHAR(255) NOT NULL
+            `material_desc` VARCHAR(255) NOT NULL,
+            `import_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """
         if not create_table(conn, cursor, target_table, create_table_sql):

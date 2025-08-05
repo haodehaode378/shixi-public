@@ -11,9 +11,11 @@
 """
 from db_utils import get_db_connection, close_db_connection, create_table
 from excel_utils import check_file_exists, load_excel_workbook, get_excel_sheet, read_cell_value
+import os, sys
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
-EXCEL_FILE = r"C:\Users\admin\Desktop\三江\核心产品返修率-20250611外发wqt.xlsx"
+EXCEL_FILE = current_dir + "\\..\\核心产品返修率-20250611外发wqt1.xlsx"
 SHEET_NAME = "板子入库"
 DB_CONFIG = {
     'host': 'localhost',    
@@ -53,11 +55,11 @@ def main():
         # 4. 创建表
         create_table_sql = f"""
         CREATE TABLE IF NOT EXISTS `{target_table}` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
             `material_code` VARCHAR(50),
-            `seq` VARCHAR(20),
             `date` DATE,
-            `quantity` FLOAT,
-            PRIMARY KEY (`material_code`, `seq`, `date`)
+            `quantity` INT,
+            `import_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """
         if not create_table(conn, cursor, target_table, create_table_sql):
@@ -71,20 +73,22 @@ def main():
         for row in range(2, 183):
             # 提取物料代码（A列）和序号（C列）
             material_code = read_cell_value(sheet, row, 1)
-            seq = read_cell_value(sheet, row, 3)
+            
             
             # 遍历时间列（H→AJ，列8到36）
             for col in range(8, 37):
                 quantity = sheet.cell(row=row, column=col).value
+                if quantity == 0:
+                    continue
                 date_str = read_cell_value(sheet, 1, col)
                 
                 try:
                     sql = f"""
                     INSERT INTO `{target_table}` 
-                    (material_code, seq, date, quantity)
-                    VALUES (%s, %s, %s, %s)
+                    (material_code, date, quantity)
+                    VALUES (%s, %s, %s)
                     """
-                    cursor.execute(sql, (material_code, seq, date_str, quantity))
+                    cursor.execute(sql, (material_code, date_str, quantity))
                     conn.commit()
                     success_count += 1
                 except Exception as e:

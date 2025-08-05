@@ -18,6 +18,13 @@ DB_CONFIG = {
     "repair_table": "repair_stats"
 }
 
+DB_CONFIG1 = {
+    "host": "localhost",
+    "user": "root",
+    "password": "123456",
+    "database": "三江",
+}
+
 # Excel文件配置
 EXCEL_CONFIG = {
     "path": r"C:\Users\admin\Desktop\三江\核心产品返修率-20250611外发wqt.xlsx",
